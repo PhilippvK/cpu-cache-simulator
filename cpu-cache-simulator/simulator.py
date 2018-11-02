@@ -102,15 +102,15 @@ while (command != "quit"):
         params = operation[1:]
 
         if command == "read" and len(params) == 1:
-            address = int(params[0])
+            address = int(params[0],0)
             byte = read(address, memory, cache)
 
             print("\nByte 0x" + util.hex_str(byte, 2) + " read from " +
                   util.bin_str(address, args.MEMORY) + "\n")
 
         elif command == "write" and len(params) == 2:
-            address = int(params[0])
-            byte = int(params[1])
+            address = int(params[0],0)
+            byte = int(params[1],0)
 
             write(address, byte, memory, cache)
 
@@ -118,7 +118,7 @@ while (command != "quit"):
                   util.bin_str(address, args.MEMORY) + "\n")
 
         elif command == "randread" and len(params) == 1:
-            amount = int(params[0])
+            amount = int(params[0],0)
 
             for i in range(amount):
                 address = random.randint(0, mem_size - 1)
@@ -127,7 +127,7 @@ while (command != "quit"):
             print("\n" + str(amount) + " bytes read from memory\n")
 
         elif command == "randwrite" and len(params) == 1:
-            amount = int(params[0])
+            amount = int(params[0],0)
 
             for i in range(amount):
                 address = random.randint(0, mem_size - 1)
@@ -137,14 +137,14 @@ while (command != "quit"):
             print("\n" + str(amount) + " bytes written to memory\n")
 
         elif command == "printcache" and len(params) == 2:
-            start = int(params[0])
-            amount = int(params[1])
+            start = int(params[0],0)
+            amount = int(params[1],0)
 
             cache.print_section(start, amount)
 
         elif command == "printmem" and len(params) == 2:
-            start = int(params[0])
-            amount = int(params[1])
+            start = int(params[0],0)
+            amount = int(params[1],0)
 
             memory.print_section(start, amount)
 
