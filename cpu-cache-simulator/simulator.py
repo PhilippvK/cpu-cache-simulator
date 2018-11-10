@@ -3,6 +3,40 @@ import random
 import util
 from cache import Cache
 from memory import Memory
+import logging
+try:
+    import gnureadline as readline
+except ImportError:
+    import readline
+
+class SimpleCompleter(object):
+
+    def __init__(self, options):
+        self.options = sorted(options)
+        return
+
+    def complete(self, text, state):
+        response = None
+        if state == 0:
+            # This is the first time for this text, so build a match list.
+            if text:
+                self.matches = [s
+                                for s in self.options
+                                if s and s.startswith(text)]
+                logging.debug('%s matches: %s', repr(text), self.matches)
+            else:
+                self.matches = self.options[:]
+                logging.debug('(empty input) matches: %s', self.matches)
+
+        # Return the state'th item from the match list,
+        # if we have that many.
+        try:
+            response = self.matches[state]
+        except IndexError:
+            response = None
+        logging.debug('complete(%s, %s) => %s',
+                      repr(text), state, repr(response))
+        return response
 
 def read(address, memory, cache):
     """Read a byte from cache."""
@@ -49,7 +83,6 @@ def write(address, byte, memory, cache):
             cache.load(address, block)
             cache.write(address, byte)
 
-
 replacement_policies = ["LRU", "LFU", "FIFO", "RAND"]
 write_policies = ["WB", "WT"]
 
@@ -90,11 +123,29 @@ print("Cache size: " + str(cache_size) +
 print("Block size: " + str(block_size) + " bytes")
 print("Mapping policy: " + ("direct" if mapping == 1 else mapping_str) + "\n")
 
-command = None
 
-# use raw_input instead of input if running in Python 2.7
+# Setup Readline for history and completion
+# See: https://pymotw.com/2/readline/
+#  and https://pewpewthespells.com/blog/osx_readline.html
+if 'libedit' in readline.__doc__:
+    # macOS
+    readline.parse_and_bind("bind ^I rl_complete")
+else:
+    # UNIX
+    readline.parse_and_bind("tab: complete")
+# TODO: test windows support?
+readline.set_completer(SimpleCompleter(['quit', 'read', 'write', 'randread', 'randwrite', 'printcache', 'printmem', 'stats']).complete)
+
+# Setup simple logging
+LOG_FILENAME = '.simulator.log'
+logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
+# TODO: add logging to other methods, too
+
+# Use raw_input instead of input if running in Python 2.7
 # See: https://stackoverflow.com/questions/21731043/use-of-input-raw-input-in-python-2-and-3
 if hasattr(__builtins__, 'raw_input'): input = raw_input
+
+command = None
 
 while (command != "quit"):
     operation = input("> ")
