@@ -4,7 +4,6 @@ import util
 from cache import Cache
 from memory import Memory
 
-
 def read(address, memory, cache):
     """Read a byte from cache."""
     cache_block = cache.read(address)
@@ -92,6 +91,10 @@ print("Block size: " + str(block_size) + " bytes")
 print("Mapping policy: " + ("direct" if mapping == 1 else mapping_str) + "\n")
 
 command = None
+
+# use raw_input instead of input if running in Python 2.7
+# See: https://stackoverflow.com/questions/21731043/use-of-input-raw-input-in-python-2-and-3
+if hasattr(__builtins__, 'raw_input'): input = raw_input
 
 while (command != "quit"):
     operation = input("> ")
